@@ -7,7 +7,6 @@ import EditBookModal from './components/EditBookModal';
 import DeleteConfirmModal from './components/DeleteConfirmModal';
 import BookItem from './components/BookItem';
 
-// Define the Book interface
 export interface Book {
   id: string;
   name: string;
@@ -19,38 +18,44 @@ export default function Home() {
   const [books, setBooks] = useState<Book[]>([]);
   const [activeBook, setActiveBook] = useState<Book | null>(null);
 
-  // Modal visibility states
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  // State for the book being edited or deleted
   const [bookToEdit, setBookToEdit] = useState<Book | null>(null);
   const [bookToDelete, setBookToDelete] = useState<string | null>(null);
-  
-  // A single loading state for all async operations
   const [isLoading, setIsLoading] = useState(false);
 
+  const LOCAL_STORAGE_KEY = "offline-books";
+
   const fetchBooks = async () => {
-    const booksData = await getBooks();
-    setBooks(booksData as Book[]);
+    try {
+      const booksData = await getBooks();
+      setBooks(booksData as Book[]);
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(booksData));
+    } catch (error) {
+      // Fallback to cached data
+      const cached = localStorage.getItem(LOCAL_STORAGE_KEY);
+      if (cached) {
+        setBooks(JSON.parse(cached));
+      } else {
+        console.error("No internet and no cached data found");
+      }
+    }
   };
 
   useEffect(() => {
     fetchBooks();
   }, []);
 
-  // --- Handlers with Loading State ---
-
   const handleAddNewBook = async (bookName: string) => {
     setIsLoading(true);
     try {
       await addBook(bookName);
-      await fetchBooks(); // Wait for data to be refetched
+      await fetchBooks();
       setShowAddModal(false);
     } catch (error) {
       console.error("Failed to add book:", error);
-      // Here you could add user-facing error notifications
     } finally {
       setIsLoading(false);
     }
@@ -98,7 +103,6 @@ export default function Home() {
     setShowDeleteModal(true);
   };
 
-  // If a book is selected, show the Wallet view
   if (activeBook) {
     return <Wallet book={activeBook} onBack={() => setActiveBook(null)} />;
   }
@@ -112,7 +116,6 @@ export default function Home() {
 
         <hr className="border-gray-700 mb-8" />
 
-        {/* Book List */}
         <section className="mb-24 sm:mb-8">
           {books.map((book) => (
             <BookItem
@@ -125,7 +128,6 @@ export default function Home() {
           ))}
         </section>
 
-        {/* Floating Add New Book Button */}
         <section>
           <div className="fixed bottom-10 left-0 right-0 p-4 bg-gradient-to-t from-gray-900 via-gray-900 to-transparent sm:static sm:p-0 sm:bg-transparent sm:flex sm:justify-center z-20">
             <button
@@ -137,7 +139,6 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Modals */}
         <AddBookModal
           show={showAddModal}
           onClose={() => setShowAddModal(false)}
