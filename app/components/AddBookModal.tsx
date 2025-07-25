@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Loader2, BookPlus } from 'lucide-react'; // <-- Nicer icons
+import { X, Loader2, BookPlus } from 'lucide-react';
 
 interface AddBookModalProps {
   show: boolean;
@@ -13,32 +13,22 @@ interface AddBookModalProps {
 const AddBookModal = ({ show, onClose, onAdd, isLoading }: AddBookModalProps) => {
   const [newBookName, setNewBookName] = useState('');
 
-  // Reset input when modal opens
   useEffect(() => {
-    if (show) {
-      setNewBookName('');
-    }
+    if (show) setNewBookName('');
   }, [show]);
 
   const handleSubmit = () => {
-    if (newBookName.trim() && !isLoading) {
-      onAdd(newBookName);
-    }
+    if (newBookName.trim() && !isLoading) onAdd(newBookName);
   };
 
-  const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter') {
-      handleSubmit();
-    }
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') handleSubmit();
   };
 
   return (
-    // --- NEW: AnimatePresence allows the component to animate when it's removed ---
     <AnimatePresence>
       {show && (
-        // --- MODIFIED: Main container now positions modal at the bottom on mobile ---
         <div className="fixed inset-0 flex items-end sm:items-center justify-center z-50">
-          {/* --- NEW: Animated backdrop --- */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -47,16 +37,21 @@ const AddBookModal = ({ show, onClose, onAdd, isLoading }: AddBookModalProps) =>
             onClick={onClose}
           />
 
-          {/* --- MODIFIED: Modal content with bottom-to-up animation --- */}
           <motion.div
             initial={{ y: "100%", opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: "100%", opacity: 0 }}
             transition={{ type: "spring", stiffness: 400, damping: 40 }}
-            // --- MODIFIED: Responsive styling for mobile bottom-sheet ---
-            className="relative w-full max-w-md bg-gray-800 rounded-t-2xl sm:rounded-lg shadow-xl"
+            className="
+              relative
+              w-full max-w-md
+              bg-gray-800
+              rounded-t-2xl sm:rounded-lg
+              shadow-xl
+              max-h-[90vh]
+              overflow-y-auto
+            "
           >
-            {/* Header */}
             <div className="flex items-center p-4 border-b border-gray-700">
               <BookPlus className="text-indigo-400" size={24} />
               <h2 className="text-xl font-bold text-white ml-3">Add a New Book</h2>
@@ -69,8 +64,7 @@ const AddBookModal = ({ show, onClose, onAdd, isLoading }: AddBookModalProps) =>
               </button>
             </div>
 
-            {/* Body */}
-            <div className="p-6">
+            <div className="p-6 flex flex-col space-y-6">
               <input
                 type="text"
                 value={newBookName}
@@ -80,7 +74,8 @@ const AddBookModal = ({ show, onClose, onAdd, isLoading }: AddBookModalProps) =>
                 placeholder="e.g., Personal Savings"
                 autoFocus
               />
-              <div className="flex justify-end space-x-4 mt-6">
+
+              <div className="flex justify-end space-x-4">
                 <button
                   onClick={onClose}
                   className="px-5 py-2.5 rounded-md text-gray-300 hover:bg-gray-700 transition-colors"
@@ -103,7 +98,8 @@ const AddBookModal = ({ show, onClose, onAdd, isLoading }: AddBookModalProps) =>
                 </button>
               </div>
             </div>
-            {/* --- NEW: Padding for iPhone home bar --- */}
+
+            {/* ensure safe‑area on iOS */}
             <div className="pb-[env(safe-area-inset-bottom)]"></div>
           </motion.div>
         </div>

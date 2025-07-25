@@ -1,8 +1,8 @@
-// code1: app/page.tsx (or wherever your Home component lives)
 "use client";
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaPlusCircle, FaBookOpen } from 'react-icons/fa';
+import { FaPlusCircle, FaCog } from 'react-icons/fa';
 import { getBooks, addBook, deleteBook, updateBookName } from './lib/firebase';
 import Wallet from './Wallet';
 import AddBookModal from './components/AddBookModal';
@@ -113,16 +113,50 @@ export default function Home() {
   }
 
   return (
-    <div className="bg-gray-900 text-gray-200 min-h-screen flex flex-col">
-      <header className="py-6 bg-gradient-to-r from-gray-800 to-gray-900 shadow-lg">
-        <h1 className="text-5xl font-extrabold text-center flex items-center justify-center space-x-3">
-          <FaBookOpen className="animate-pulse text-indigo-300" />
-          <span>My Books</span>
-        </h1>
-      </header>
+    <div className="bg-gray-900 text-gray-200 min-h-screen flex flex-col overflow-hidden">
+      {/* Animated Fixed Header */}
+      <motion.header
+        initial={{ y: -80, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.6, ease: 'easeOut' }}
+        className="fixed top-0 left-0 w-full bg-gradient-to-r from-gray-800 to-gray-950 shadow-lg z-30"
+      >
+        <div className="container mx-auto flex justify-between items-center py-4 px-6">
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.3, duration: 0.4 }}
+            className="flex items-center space-x-3"
+          >
+            {/* Replaced icon with custom image */}
+            <Image
+              src="/icons/icon-512x512.png"
+              alt="App Icon"
+              width={32}
+              height={32}
+              className="rounded-sm drop-shadow-lg"
+            />
+            <h1 className="text-3xl font-bold">CashBook</h1>
+          </motion.div>
+          {/* Slower glowing cog icon */}
+          <motion.div
+            animate={{ rotate: 360, opacity: [0.8, 1, 0.8] }}
+            transition={{ repeat: Infinity, duration: 6, ease: 'linear' }}
+            className="drop-shadow-[0_0_8px_rgba(99,102,241,0.7)] cursor-pointer"
+          >
+            <FaCog size={24} className="text-gray-300 hover:text-gray-200 transition-colors" />
+          </motion.div>
+        </div>
+      </motion.header>
 
-      <main className="container mx-auto flex-1 p-4 sm:p-6">
-        <hr className="border-gray-700 mb-8" />
+      {/* Main Content (with padding-top to offset fixed header) */}
+      <main className="container mx-auto flex-1 p-4 sm:p-6 pt-28">
+        <motion.hr
+          initial={{ scaleX: 0 }}
+          animate={{ scaleX: 1 }}
+          transition={{ duration: 0.5, ease: 'easeOut' }}
+          className="border-gray-700 mb-8 origin-left"
+        />
 
         <section className="space-y-4 mb-24 sm:mb-8">
           <AnimatePresence>
@@ -145,7 +179,13 @@ export default function Home() {
           </AnimatePresence>
         </section>
 
-        <div className="fixed bottom-8 left-0 right-0 flex justify-center z-20 sm:static sm:mt-0">
+        {/* Animated Add New Book Button */}
+        <motion.div
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ delay: 0.5, duration: 0.5 }}
+          className="fixed bottom-8 left-0 right-0 flex justify-center z-20 sm:static sm:mt-0"
+        >
           <button
             className="flex items-center space-x-2 bg-indigo-600 text-white font-bold py-3 px-6 rounded-full shadow-2xl hover:bg-indigo-700 transition-all duration-300 ease-in-out hover:scale-110 active:scale-95"
             onClick={() => setShowAddModal(true)}
@@ -153,8 +193,9 @@ export default function Home() {
             <FaPlusCircle size={20} className="animate-bounce" />
             <span>Add New Book</span>
           </button>
-        </div>
+        </motion.div>
 
+        {/* Modals */}
         <AddBookModal
           show={showAddModal}
           onClose={() => setShowAddModal(false)}
