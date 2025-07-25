@@ -1,6 +1,6 @@
 {
-  "short_name": "MyApp",
-  "name": "My Progressive Web App",
+  "short_name": "CashBook",
+  "name": "CashBook Web App",
   "description": "A Next.js PWA",
   "start_url": "/",
   "background_color": "#ffffff",

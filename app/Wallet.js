@@ -169,15 +169,11 @@ export default function Wallet({ book, onBack }) {
         return () => unsubscribe();
     }, [book.id]);
     
-    // The `useMemo` hook now calculates totals and provides a sorted list of transactions.
-    // The running balance calculation is kept for the main summary cards.
     const { totalCashIn, totalCashOut, netBalance, sortedTransactions } = useMemo(() => {
         let cashIn = 0, cashOut = 0;
         
-        // Sort transactions by timestamp descending (newest first)
         const sorted = [...transactions].sort((a, b) => b.timestamp?.toMillis() - a.timestamp?.toMillis());
         
-        // Calculate totals
         sorted.forEach(tx => {
             if (tx.type === 'cash-in') {
                 cashIn += tx.amount;
@@ -255,7 +251,7 @@ export default function Wallet({ book, onBack }) {
             {/* The main container applies the background color */}
             <div className="bg-gray-900 lg:bg-gray-100 min-h-screen">
                 
-                {/* --- Mobile Header (New) --- */}
+                {/* --- Mobile Header --- */}
                 <header className="bg-gray-800 p-3 flex items-center justify-between lg:hidden sticky top-0 z-10 border-b border-gray-700">
                     <div className="flex items-center gap-2">
                         <button onClick={onBack} className="text-white"><BackArrowIcon /></button>
@@ -268,7 +264,7 @@ export default function Wallet({ book, onBack }) {
                     </div>
                 </header>
 
-                {/* --- Desktop Header (Original) --- */}
+                {/* --- Desktop Header --- */}
                 <div className="p-4 sm:p-6 hidden lg:block">
                     <header className="flex items-center justify-between mb-6">
                         <div className="flex items-center gap-2 sm:gap-4">
@@ -282,39 +278,30 @@ export default function Wallet({ book, onBack }) {
                 
                 {/* --- Content Area --- */}
                 <div className="lg:p-4 sm:p-6">
-                    {/* --- Mobile Summary Card & Filters (New) --- */}
-                    <div className="lg:hidden">
-                        <div className="bg-gray-800 p-3 flex gap-3">
-                            <button className="w-full bg-gray-700 text-gray-300 text-sm py-2 rounded-md">Select Date</button>
-                            <button className="w-full bg-gray-700 text-gray-300 text-sm py-2 rounded-md">Entry Type</button>
-                        </div>
-                        <div className="p-3">
-                            <div className="bg-gray-800 rounded-lg p-4 text-white">
-                                <p className="text-sm text-gray-400">Net Balance</p>
-                                <p className="text-3xl font-bold mt-1">${netBalance.toFixed(2)}</p>
-                                <div className="mt-4 pt-4 border-t border-gray-700 flex justify-between">
-                                    <div className='flex-1'>
-                                        <p className="text-sm text-gray-400">Total In (+)</p>
-                                        <p className="font-semibold text-green-400 text-lg">${totalCashIn.toFixed(2)}</p>
-                                    </div>
-                                    <div className='flex-1'>
-                                        <p className="text-sm text-gray-400">Total Out (-)</p>
-                                        <p className="font-semibold text-red-400 text-lg">${totalCashOut.toFixed(2)}</p>
-                                    </div>
+                    {/* --- Mobile Summary Card --- */}
+                    <div className="lg:hidden p-3">
+                        <div className="bg-gray-800 rounded-lg p-4 text-white">
+                            <p className="text-sm text-gray-400">Net Balance</p>
+                            <p className="text-3xl font-bold mt-1">${netBalance.toFixed(2)}</p>
+                            <div className="mt-4 pt-4 border-t border-gray-700 flex justify-between">
+                                <div className='flex-1'>
+                                    <p className="text-sm text-gray-400">Total In (+)</p>
+                                    <p className="font-semibold text-green-400 text-lg">${totalCashIn.toFixed(2)}</p>
                                 </div>
-                                <button className="text-blue-400 font-semibold mt-4 text-sm w-full text-left">VIEW REPORTS &gt;</button>
+                                <div className='flex-1'>
+                                    <p className="text-sm text-gray-400">Total Out (-)</p>
+                                    <p className="font-semibold text-red-400 text-lg">${totalCashOut.toFixed(2)}</p>
+                                </div>
                             </div>
+                            <button className="text-blue-400 font-semibold mt-4 text-sm w-full text-left">VIEW REPORTS &gt;</button>
                         </div>
                     </div>
 
-                    {/* --- Desktop Actions & Summary (Original) --- */}
+                    {/* --- Desktop Actions & Summary --- */}
                     <div className="hidden lg:block">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                            <input type="text" placeholder="Search by remark..." className="w-full p-2 border rounded-md border-gray-300" />
-                            <div className="grid grid-cols-2 gap-2">
-                                <button onClick={() => handleOpenModalForNew('cash-in')} className="bg-green-600 text-white font-bold py-2 px-4 rounded-md hover:bg-green-700 w-full">+ In</button>
-                                <button onClick={() => handleOpenModalForNew('cash-out')} className="bg-red-600 text-white font-bold py-2 px-4 rounded-md hover:bg-red-700 w-full">- Out</button>
-                            </div>
+                        <div className="flex justify-end gap-2 mb-6">
+                            <button onClick={() => handleOpenModalForNew('cash-in')} className="bg-green-600 text-white font-bold py-2 px-4 rounded-md hover:bg-green-700 w-auto">+ In</button>
+                            <button onClick={() => handleOpenModalForNew('cash-out')} className="bg-red-600 text-white font-bold py-2 px-4 rounded-md hover:bg-red-700 w-auto">- Out</button>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
                             <div className="bg-white p-4 rounded-lg border flex items-center gap-4"><div className="text-green-500 p-2 bg-green-100 rounded-full text-lg font-bold">+</div><div><p className="text-sm text-gray-500">Cash In</p><p className="text-xl font-bold text-gray-800">${totalCashIn.toFixed(2)}</p></div></div>
