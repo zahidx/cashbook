@@ -1,6 +1,8 @@
+// code2: components/BookItem.tsx
 "use client";
 import { useState, useRef, useEffect } from 'react';
-import { FaPencilAlt, FaTrash, FaEllipsisV } from 'react-icons/fa';
+import { motion } from 'framer-motion';
+import { FaPencilAlt, FaTrash, FaEllipsisV, FaClock, FaDollarSign, FaBook } from 'react-icons/fa';
 import { Book } from '../page';
 import { formatRelativeTime } from '../utils/time';
 
@@ -43,14 +45,23 @@ const BookItem = ({ book, onSelect, onStartEdit, onStartDelete }: BookItemProps)
   };
 
   return (
-    <div
+    <motion.div
       onClick={() => onSelect(book)}
-      className="bg-gray-800 p-4 rounded-lg mb-4 shadow-lg cursor-pointer transition-all duration-200 ease-in-out hover:bg-gray-700 hover:-translate-y-1"
+      initial={{ scale: 0.95 }}
+      whileHover={{ scale: 1.02 }}
+      whileTap={{ scale: 0.98 }}
+      className="bg-gray-800 p-5 rounded-2xl mb-4 shadow-xl cursor-pointer border border-transparent hover:border-indigo-500 transition-all duration-200 ease-in-out"
     >
-      <div className="flex justify-between items-start mb-2">
-        <h2 className="text-xl font-bold text-gray-100">{book.name}</h2>
+      <div className="flex justify-between items-start mb-3">
+        <div className="flex items-center space-x-3">
+          <FaBook className="text-indigo-400" size={24} />
+          <h2 className="text-2xl font-bold text-gray-100">{book.name}</h2>
+        </div>
         <div className="flex items-center space-x-2">
-          <p className="text-green-400 font-semibold text-lg">${book.balance.toFixed(2)}</p>
+          <div className="flex items-center space-x-1">
+            <FaDollarSign className="text-green-400" />
+            <span className="text-green-400 font-semibold text-lg">{book.balance.toFixed(2)}</span>
+          </div>
           <div className="relative" ref={menuRef}>
             <button
               onClick={handleMenuToggle}
@@ -65,16 +76,24 @@ const BookItem = ({ book, onSelect, onStartEdit, onStartDelete }: BookItemProps)
                 ${isMenuOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}
                 sm:opacity-100 sm:scale-100 sm:pointer-events-auto sm:flex
                 flex-col sm:flex-row items-start sm:items-center
-                absolute sm:static top-8 right-0 sm:top-auto sm:right-auto
-                bg-gray-700 sm:bg-transparent p-2 sm:p-0 rounded-md
-                shadow-lg sm:shadow-none min-w-[120px] z-10
+                absolute sm:static top-10 right-0 sm:top-auto sm:right-auto
+                bg-gray-700 sm:bg-transparent p-2 sm:p-0 rounded-lg
+                shadow-2xl sm:shadow-none min-w-[140px] z-10
               `}
             >
-              <button onClick={handleEdit} className="text-white hover:bg-gray-600 p-2 sm:ml-2 flex items-center space-x-2 w-full sm:w-auto rounded-md transition-colors duration-200" title="Edit Book">
+              <button
+                onClick={handleEdit}
+                className="text-white hover:bg-gray-600 p-2 sm:ml-2 flex items-center space-x-2 w-full sm:w-auto rounded-md transition-colors duration-200"
+                title="Edit Book"
+              >
                 <FaPencilAlt size={16} />
                 <span className="font-medium">Edit</span>
               </button>
-              <button onClick={handleDelete} className="text-red-400 hover:text-red-300 hover:bg-gray-600 p-2 flex items-center space-x-2 w-full sm:w-auto rounded-md transition-colors duration-200" title="Delete Book">
+              <button
+                onClick={handleDelete}
+                className="text-red-400 hover:text-red-300 hover:bg-gray-600 p-2 flex items-center space-x-2 w-full sm:w-auto rounded-md transition-colors duration-200"
+                title="Delete Book"
+              >
                 <FaTrash size={16} />
                 <span className="font-medium">Delete</span>
               </button>
@@ -82,10 +101,11 @@ const BookItem = ({ book, onSelect, onStartEdit, onStartDelete }: BookItemProps)
           </div>
         </div>
       </div>
-      <p className="text-sm text-gray-400">
-        {formatRelativeTime(book.updated)}
-      </p>
-    </div>
+      <div className="flex items-center text-sm text-gray-400 space-x-2">
+        <FaClock />
+        <span>{formatRelativeTime(book.updated)}</span>
+      </div>
+    </motion.div>
   );
 };
 

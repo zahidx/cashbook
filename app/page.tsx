@@ -1,5 +1,8 @@
+// code1: app/page.tsx (or wherever your Home component lives)
 "use client";
 import { useEffect, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { FaPlusCircle, FaBookOpen } from 'react-icons/fa';
 import { getBooks, addBook, deleteBook, updateBookName } from './lib/firebase';
 import Wallet from './Wallet';
 import AddBookModal from './components/AddBookModal';
@@ -23,7 +26,7 @@ export default function Home() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const [bookToEdit, setBookToEdit] = useState<Book | null>(null);
-  const [bookToDelete, setBookToDelete] = useState<string | null>(null);
+  const [bookToDelete, setBookToDelete] = useState<Book | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const LOCAL_STORAGE_KEY = "offline-books";
@@ -34,7 +37,6 @@ export default function Home() {
       setBooks(booksData as Book[]);
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(booksData));
     } catch (error) {
-      // Fallback to cached data
       const cached = localStorage.getItem(LOCAL_STORAGE_KEY);
       if (cached) {
         setBooks(JSON.parse(cached));
@@ -81,7 +83,7 @@ export default function Home() {
     if (bookToDelete) {
       setIsLoading(true);
       try {
-        await deleteBook(bookToDelete);
+        await deleteBook(bookToDelete.id);
         await fetchBooks();
         setShowDeleteModal(false);
         setBookToDelete(null);
@@ -99,8 +101,11 @@ export default function Home() {
   };
 
   const handleStartDelete = (bookId: string) => {
-    setBookToDelete(bookId);
-    setShowDeleteModal(true);
+    const bookToDeleteDetails = books.find(book => book.id === bookId);
+    if (bookToDeleteDetails) {
+      setBookToDelete(bookToDeleteDetails);
+      setShowDeleteModal(true);
+    }
   };
 
   if (activeBook) {
@@ -108,36 +113,47 @@ export default function Home() {
   }
 
   return (
-    <div className="bg-gray-900 text-gray-200 min-h-screen">
-      <main className="container mx-auto p-4 sm:p-6">
-        <header className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-100">My Books 📚</h1>
-        </header>
+    <div className="bg-gray-900 text-gray-200 min-h-screen flex flex-col">
+      <header className="py-6 bg-gradient-to-r from-gray-800 to-gray-900 shadow-lg">
+        <h1 className="text-5xl font-extrabold text-center flex items-center justify-center space-x-3">
+          <FaBookOpen className="animate-pulse text-indigo-300" />
+          <span>My Books</span>
+        </h1>
+      </header>
 
+      <main className="container mx-auto flex-1 p-4 sm:p-6">
         <hr className="border-gray-700 mb-8" />
 
-        <section className="mb-24 sm:mb-8">
-          {books.map((book) => (
-            <BookItem
-              key={book.id}
-              book={book}
-              onSelect={setActiveBook}
-              onStartEdit={handleStartEdit}
-              onStartDelete={handleStartDelete}
-            />
-          ))}
+        <section className="space-y-4 mb-24 sm:mb-8">
+          <AnimatePresence>
+            {books.map((book) => (
+              <motion.div
+                key={book.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.3 }}
+              >
+                <BookItem
+                  book={book}
+                  onSelect={setActiveBook}
+                  onStartEdit={handleStartEdit}
+                  onStartDelete={handleStartDelete}
+                />
+              </motion.div>
+            ))}
+          </AnimatePresence>
         </section>
 
-        <section>
-          <div className="fixed bottom-10 left-0 right-0 p-4 bg-gradient-to-t from-gray-900 via-gray-900 to-transparent sm:static sm:p-0 sm:bg-transparent sm:flex sm:justify-center z-20">
-            <button
-              className="bg-indigo-600 text-white font-bold py-3 rounded-lg shadow-lg hover:bg-indigo-700 transition-all duration-300 ease-in-out hover:scale-105 active:scale-100 w-1/2 ml-[110px] sm:w-auto sm:px-8 mx-auto sm:mx-0"
-              onClick={() => setShowAddModal(true)}
-            >
-              Add New Book
-            </button>
-          </div>
-        </section>
+        <div className="fixed bottom-8 left-0 right-0 flex justify-center z-20 sm:static sm:mt-0">
+          <button
+            className="flex items-center space-x-2 bg-indigo-600 text-white font-bold py-3 px-6 rounded-full shadow-2xl hover:bg-indigo-700 transition-all duration-300 ease-in-out hover:scale-110 active:scale-95"
+            onClick={() => setShowAddModal(true)}
+          >
+            <FaPlusCircle size={20} className="animate-bounce" />
+            <span>Add New Book</span>
+          </button>
+        </div>
 
         <AddBookModal
           show={showAddModal}
@@ -156,9 +172,13 @@ export default function Home() {
 
         <DeleteConfirmModal
           show={showDeleteModal}
-          onClose={() => setShowDeleteModal(false)}
+          onClose={() => {
+            setShowDeleteModal(false);
+            setBookToDelete(null);
+          }}
           onConfirm={confirmDeleteBook}
           isLoading={isLoading}
+          bookName={bookToDelete?.name || ''}
         />
       </main>
     </div>
